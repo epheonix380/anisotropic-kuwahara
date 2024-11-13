@@ -1,8 +1,8 @@
-#Kuwahara Processor Utility for Exr Files#
+# Kuwahara Processor Utility for Exr Files
 
 Created to perform Anisotropic Kuwahara on EXR files
 
-##Installation##
+## Installation
 
 Install pipenv using pip
 `pip install pipenv`
