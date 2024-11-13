@@ -9,3 +9,9 @@ Install pipenv using pip
 
 Then in the root of the directory run
 `pipenv install`
+
+Invoke the virtualenv by using
+`pipenv shell`
+
+Then run
+`python -m AnisotropicKuwahara <<input image>> <<output image>>`
