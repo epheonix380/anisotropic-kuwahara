@@ -4,9 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-openexr = "*"
 numpy = "*"
 opencv-python = "*"
+openexr = "*"
+multiprocess = "*"
 
 [dev-packages]
 

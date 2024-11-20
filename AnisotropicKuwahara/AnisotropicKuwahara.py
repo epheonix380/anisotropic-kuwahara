@@ -1,8 +1,13 @@
 import numpy as np
+from multiprocessing import Pool
 
 class KuwaharaAnisotropic:
     def __init__(self, src, structure_tensor, size=10.0, sharpness=1.0, eccentricity=0.5):
         self.size = size
+        height, width, _ = src.shape
+        self.height = height
+        self.width = width
+        self.dst = np.zeros(shape=(height, width, 4))
         self.sharpness = sharpness
         self.eccentricity = eccentricity
         self.src = src
@@ -11,6 +16,32 @@ class KuwaharaAnisotropic:
     @staticmethod
     def square(x):
         return x * x
+    
+    def getDst(self):
+        return self.dst
+    
+    def doX(self, y):
+        column = np.zeros(shape=(self.width, 4))
+        try:
+            for x in range(self.width):
+                column[x] = self.process([y, x])
+        except:
+            print(f"Failure in column {str(y)}")
+        return column
+    
+    def multiProcessAll(self):
+        pool = Pool()
+        results = []
+        for y in reversed(range(self.height)):
+            print(f"Adding {str(y)} to pool")
+            results.append(pool.apply_async(self.doX, args=(y,)))
+        y = 0
+        for result in results:
+            print(result)
+            self.dst[y] = result.get()
+            print(f"Got result for {str(y)}")
+            y += 1
+
 
     def process(self, pos):
         structure_tensor = self.structure_tensor
@@ -37,6 +68,7 @@ class KuwaharaAnisotropic:
         radius = max(0.0, self.size)
         if radius == 0.0:
             return src[pos[0], pos[1]]
+            
 
         eccentricity_clamp = min(self.eccentricity, 0.95)
         eccentric_adj = (1.0 - eccentricity_clamp) * 10.0
@@ -80,6 +112,20 @@ class KuwaharaAnisotropic:
 
         for j in range(int(ellipse_bounds[1]) + 1):
             for i in range(-int(ellipse_bounds[0]), int(ellipse_bounds[0]) + 1):
+                if pos[0] + i >= self.height:
+                    continue
+                if pos[0] - i < 0:
+                    continue
+                # This is necessary due to potentially negative i
+                if pos[0] - i >= self.height:
+                    continue
+                # This is necessary due to potentially negative i
+                if pos[0] + i < 0:
+                    continue
+                if pos[1]+j >= self.width:
+                    continue
+                if pos[1]-j < 0:
+                    continue
                 if j == 0 and i <= 0:
                     continue
 
@@ -147,5 +193,5 @@ class KuwaharaAnisotropic:
             weighted_sum += color_mean * weight
 
         weighted_sum /= sum_of_weights
-        return np.array([weighted_sum[0], weighted_sum[1], weighted_sum[2], center_color[3]])
+        return  np.array([weighted_sum[0], weighted_sum[1], weighted_sum[2], center_color[3]])
 
