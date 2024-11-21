@@ -18,7 +18,6 @@ class KuwaharaAnisotropic(Filter):
         return x * x
 
     def process(self, pos):
-        # return np.array([0,0,0,1])
         structure_tensor = self.structure_tensor
         src = self.src
         encoded_structure_tensor = structure_tensor[pos[0], pos[1]]
