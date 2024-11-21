@@ -2,6 +2,14 @@ import numpy as np
 from multiprocessing import Pool
 
 class Filter:
+
+    def setSrc(self, src):
+        self.src = src
+        height, width, _ = src.shape
+        self.height = height
+        self.width = width
+        self.dst = np.zeros(shape=(height, width, 4))
+
     
     def getDst(self):
         return self.dst
@@ -34,4 +42,4 @@ class Filter:
 
 
     def process(self, pos):
-        return np.array([0,0,0,1])
+        return self.src[pos[0], pos[1]]

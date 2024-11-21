@@ -2,16 +2,17 @@ import numpy as np
 from multiprocessing import Pool
 from .Filter import Filter
 class KuwaharaAnisotropic(Filter):
-    def __init__(self, src, structure_tensor, size=10.0, sharpness=1.0, eccentricity=0.5):
+    def __init__(self, structure_tensor, src=None, size=10.0, sharpness=1.0, eccentricity=0.5):
         self.size = size
         self.sharpness = sharpness
         self.eccentricity = eccentricity
         self.structure_tensor = structure_tensor
-        height, width, _ = src.shape
-        self.height = height
-        self.width = width
-        self.dst = np.zeros(shape=(height, width, 4))
-        self.src = src
+        if src is not None:
+            height, width, _ = src.shape
+            self.height = height
+            self.width = width
+            self.dst = np.zeros(shape=(height, width, 4))
+            self.src = src
 
     @staticmethod
     def square(x):
