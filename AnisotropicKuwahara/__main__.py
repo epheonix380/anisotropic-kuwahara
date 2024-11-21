@@ -18,9 +18,9 @@ def main():
             print(channels)
             height, width, _ = RGB.shape
             st = StructuredTensor(RGB)
-            #for y in range(height):
-            #    for x in range(width):
-            #        st.process([x,y])
+            for y in range(height):
+                for x in range(width):
+                    st.process([x,y])
             ka = KuwaharaAnisotropic(RGB, st.getDst())
             ka.multiProcessAll() # pipenv shell python -m AnisotropicKuwahara BG_depthInfo.exr test.exr
             channels["RGBA"] = OpenEXR.Channel(ka.getDst().astype('float32'))
