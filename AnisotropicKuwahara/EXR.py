@@ -14,7 +14,9 @@ def filterWithMultiprocessing(input_path:str, output_path:str, filter: Filter = 
         channels["RGBA"] = OpenEXR.Channel(filter.getDst().astype('float32'))
         infile.write(output)
 
-def filter(input, output, filter: Filter = None):
+def filter(input_path: str, output_path:str, filter: Filter = None): 
+    """ Applies filter to EXR found on input file and saves it on the output path
+    """
     with OpenEXR.File(input) as infile:
         channels = infile.channels()
         RGB = infile.channels()["RGBA"].pixels
