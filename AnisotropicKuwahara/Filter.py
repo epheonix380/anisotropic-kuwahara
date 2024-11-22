@@ -42,4 +42,8 @@ class Filter:
 
 
     def process(self, pos):
+        """given the position of a pixel, return the new pixel value
+        Returns:
+            _type_: RGBa Value of the pixel
+        """
         return self.src[pos[0], pos[1]]
