@@ -28,11 +28,17 @@ def filter(input_path: str, output_path:str, filter: Filter = None) -> None:
         infile.write(output_path)
 
 def read(input_path: str) -> np.ndarray:
+    """
+    Reads a given pathlike string as an exr image and returns it as a ndarray
+    """
     with OpenEXR.File(input_path) as infile:
         channels = infile.channels()
         return infile.channels()["RGBA"].pixels
     
 def write(output_path:str, src:np.ndarray) -> None:
+    """
+    Writes given ndarray as an exr, defaults to scanlineimage type.
+    """
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
         "type" : OpenEXR.scanlineimage }
     channel = OpenEXR.Channel(src.astype('float32'))

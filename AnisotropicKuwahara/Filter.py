@@ -15,6 +15,9 @@ class Filter:
         return self.dst
     
     def doX(self, y: int) -> np.ndarray:
+        """
+        Helper function to process the image
+        """
         column = np.zeros(shape=(self.width, 4))
         try:
             for x in range(self.width):
@@ -24,10 +27,18 @@ class Filter:
         return column
     
     def singleProcessAll(self):
+        """
+        Starts to process the image. 
+        This runs the process function on all pixes in src and saves all the results in dst
+        """
         for y in range(self.height):
             self.dst[y] = self.doX(y=y)
 
     def multiProcessAll(self):
+        """
+        Starts a multiprocessing pool to process the image. 
+        This runs the process function on all pixes in src and saves all the results in dst
+        """
         pool = Pool()
         results = []
         for y in range(self.height):
