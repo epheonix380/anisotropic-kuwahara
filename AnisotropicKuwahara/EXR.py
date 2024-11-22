@@ -23,7 +23,7 @@ def filter(input, output, filter: Filter = None):
         channels["RGBA"] = OpenEXR.Channel(filter.getDst().astype('float32'))
         infile.write(output)
 
-def read(input):
+def read(input:_path:str):
     with OpenEXR.File(input) as infile:
         channels = infile.channels()
         return infile.channels()["RGBA"].pixels
