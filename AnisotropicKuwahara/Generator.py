@@ -33,7 +33,6 @@ class BlotchGenerator(Filter):
     def process(self, pos):
         y = math.floor(pos[0]/8)
         x = math.floor(pos[1]/8)
-        print(y,x)
         return np.array([
             y*(8/self.height),
             x*(8/self.width),
