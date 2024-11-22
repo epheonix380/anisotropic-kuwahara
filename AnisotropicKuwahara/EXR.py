@@ -30,7 +30,7 @@ def read(input:_path:str):
         channels = infile.channels()
         return infile.channels()["RGBA"].pixels
     
-def write(output, src):
+def write(output:str, src:np.ndarray):
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
         "type" : OpenEXR.scanlineimage }
     channel = OpenEXR.Channel(src.astype('float32'))
