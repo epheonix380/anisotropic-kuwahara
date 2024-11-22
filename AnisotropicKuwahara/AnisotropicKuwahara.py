@@ -2,7 +2,7 @@ import numpy as np
 from multiprocessing import Pool
 from .Filter import Filter
 class KuwaharaAnisotropic(Filter):
-    def __init__(self, structure_tensor, src=None, size=10.0, sharpness=1.0, eccentricity=0.5):
+    def __init__(self, structure_tensor: np.ndarray, src: np.ndarray=None, size: float=10.0, sharpness: float=1.0, eccentricity: float=0.5):
         self.size = size
         self.sharpness = sharpness
         self.eccentricity = eccentricity
@@ -15,10 +15,10 @@ class KuwaharaAnisotropic(Filter):
             self.src = src
 
     @staticmethod
-    def square(x):
+    def square(x: float) -> float:
         return x * x
 
-    def process(self, pos):
+    def process(self, pos: list[int]) -> np.ndarray:
         structure_tensor = self.structure_tensor
         src = self.src
         encoded_structure_tensor = structure_tensor[pos[0], pos[1]]

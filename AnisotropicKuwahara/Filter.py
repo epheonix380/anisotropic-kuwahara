@@ -3,7 +3,7 @@ from multiprocessing import Pool
 
 class Filter:
 
-    def setSrc(self, src):
+    def setSrc(self, src: np.ndarray):
         self.src = src
         height, width, _ = src.shape
         self.height = height
@@ -14,7 +14,7 @@ class Filter:
     def getDst(self):
         return self.dst
     
-    def doX(self, y):
+    def doX(self, y: int) -> np.ndarray:
         column = np.zeros(shape=(self.width, 4))
         try:
             for x in range(self.width):
@@ -41,7 +41,7 @@ class Filter:
             y += 1
 
 
-    def process(self, pos):
+    def process(self, pos: list[int]) -> np.ndarray:
         """given the position of a pixel, return the new pixel value
         Returns:
             _type_: RGBa Value of the pixel
