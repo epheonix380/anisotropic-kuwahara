@@ -5,7 +5,6 @@ class StructuredTensor:
         height, width, _ = src.shape
         self.height = height
         self.width = width
-        print(height)
         self.dst = np.zeros(shape=(height, width, 3))
         self.size = size
         self.sharpness = sharpness
