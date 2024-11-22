@@ -3,7 +3,9 @@ import sys
 import numpy as np
 import OpenEXR
 
-def filterWithMultiprocessing(input, output, filter: Filter = None):
+def filterWithMultiprocessing(input_path:str, output_path:str, filter: Filter = None):
+""" Applies filter to EXR found on input_path and saves it on the output_path. Uses Multithreading
+"""
     with OpenEXR.File(input) as infile:
         channels = infile.channels()
         RGB = infile.channels()["RGBA"].pixels
