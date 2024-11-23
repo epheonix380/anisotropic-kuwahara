@@ -1,0 +1,5 @@
+**.exr
+*.exr
+**/__pycache__/*
+build/**
+output/**
