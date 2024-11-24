@@ -17,6 +17,10 @@ class KuwaharaAnisotropic(Filter):
     @staticmethod
     def square(x: float) -> float:
         return x * x
+    
+    def get_results(self) -> np.ndarray:
+        #stub
+        return self.src
 
     def process(self, pos: list[int]) -> np.ndarray:
         structure_tensor = self.structure_tensor
