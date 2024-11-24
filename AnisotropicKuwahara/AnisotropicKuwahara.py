@@ -1,8 +1,11 @@
 import numpy as np
 from multiprocessing import Pool
 from .Filter import Filter
+from AnisotropicKuwahara.Tensor import StructuredTensor
+from AnisotropicKuwahara.utils.ImageUtil import gaussian
+from AnisotropicKuwahara.utils.TimeReport import TimeReport
 class KuwaharaAnisotropic(Filter):
-    def __init__(self, structure_tensor: np.ndarray, src: np.ndarray=None, size: float=10.0, sharpness: float=1.0, eccentricity: float=0.5):
+    def __init__(self, structure_tensor: np.ndarray, src: np.ndarray=None, size: float=10.0, sharpness: float=1.0, eccentricity: float=1):
         self.size = size
         self.sharpness = sharpness
         self.eccentricity = eccentricity
@@ -18,35 +21,45 @@ class KuwaharaAnisotropic(Filter):
     def square(x: float) -> float:
         return x * x
     
-    def get_results(self) -> np.ndarray:
-        #stub
-        return self.src
+    def get_results(self, gradients) -> np.ndarray:
+        radius = self.size
+        alpha = self.eccentricity
+        st = StructuredTensor(self.src)
+
+        if self.size < 0:
+            return self.src
+
+        with TimeReport("pre filter calculations"):
+            # perform gaussian blur on gradient to make orientation smoother
+            gauss_struct_tensor = gaussian(gradients, 3, 1)
+            E, G, F = [gauss_struct_tensor[:,:,i] for i in range(3)]
+
+            lambda1, lambda2 = st.get_lambdas(E,G,F)
+            orientations = st.get_orientations(E,F,lambda1)
+            anisotropy = (lambda1 - lambda2) / (lambda1 + lambda2)
+
+            alpha_adjusted_anisotropy = alpha / (alpha + anisotropy) #this is still a numpy array h*w*1
+
+            identity = np.array([[1,0],[0,1]])
+
+            # Expand dimensions of the alpha_adjusted_anisotropy to enable broadcasting 
+            alpha_anisotropy_expanded = alpha_adjusted_anisotropy[:, :, np.newaxis, np.newaxis]
+
+            # Perform element-wise multiplication
+            S = alpha_anisotropy_expanded * identity
+            
+            # TODO: complete this function        
+        return anisotropy
+
+
+
 
     def process(self, pos: list[int]) -> np.ndarray:
-        structure_tensor = self.structure_tensor
-        src = self.src
-        encoded_structure_tensor = structure_tensor[pos[0], pos[1]]
-
-        dxdx = encoded_structure_tensor[0]
-        dxdy = encoded_structure_tensor[1]
-        dydy = encoded_structure_tensor[2]
-
-        eigenvalue_first_term = (dxdx + dydy) / 2.0
-        eigenvalue_square_root_term = np.sqrt(self.square(dxdx - dydy) + 4.0 * self.square(dxdy)) / 2.0
-        first_eigenvalue = eigenvalue_first_term + eigenvalue_square_root_term
-        second_eigenvalue = eigenvalue_first_term - eigenvalue_square_root_term
-
-        eigenvector = np.array([first_eigenvalue - dxdx, -dxdy])
-        eigenvector_length = np.linalg.norm(eigenvector)
-        unit_eigenvector = eigenvector / eigenvector_length if eigenvector_length != 0.0 else np.array([1.0, 0.0])
-
-        eigenvalue_sum = first_eigenvalue + second_eigenvalue
-        eigenvalue_difference = first_eigenvalue - second_eigenvalue
-        anisotropy = eigenvalue_difference / eigenvalue_sum if eigenvalue_sum > 0.0 else 0.0
-
         radius = max(0.0, self.size)
         if radius == 0.0:
-            return src[pos[0], pos[1]]
+            return self.src[pos[0], pos[1]]
+        
+        anisotropy, unit_eigenvector = self.get_kernel(pos)
             
 
         eccentricity_clamp = min(self.eccentricity, 0.95)
@@ -174,3 +187,29 @@ class KuwaharaAnisotropic(Filter):
         weighted_sum /= sum_of_weights
         return  np.array([weighted_sum[0], weighted_sum[1], weighted_sum[2], center_color[3]])
 
+
+    def get_kernel(self, pos: list[int]):
+        """process function helper
+        """
+        structure_tensor = self.structure_tensor
+        src = self.src
+        encoded_structure_tensor = structure_tensor[pos[0], pos[1]]
+
+        dxdx = encoded_structure_tensor[0]
+        dxdy = encoded_structure_tensor[1]
+        dydy = encoded_structure_tensor[2]
+
+        eigenvalue_first_term = (dxdx + dydy) / 2.0
+        eigenvalue_square_root_term = np.sqrt(self.square(dxdx - dydy) + 4.0 * self.square(dxdy)) / 2.0
+        first_eigenvalue = eigenvalue_first_term + eigenvalue_square_root_term
+        second_eigenvalue = eigenvalue_first_term - eigenvalue_square_root_term
+
+        eigenvector = np.array([first_eigenvalue - dxdx, -dxdy])
+        eigenvector_length = np.linalg.norm(eigenvector)
+        unit_eigenvector = eigenvector / eigenvector_length if eigenvector_length != 0.0 else np.array([1.0, 0.0])
+
+        eigenvalue_sum = first_eigenvalue + second_eigenvalue
+        eigenvalue_difference = first_eigenvalue - second_eigenvalue
+        anisotropy = eigenvalue_difference / eigenvalue_sum if eigenvalue_sum > 0.0 else 0.0
+
+        return anisotropy, unit_eigenvector
