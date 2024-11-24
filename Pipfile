@@ -4,10 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-numpy = "*"
-opencv-python = "*"
 openexr = "*"
 multiprocess = "*"
+opencv-python = "*"
+numpy = "*"
+matplotlib = "*"
+pytest = "*"
 cupy-cuda12x = "*"
 
 [dev-packages]
