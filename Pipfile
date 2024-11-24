@@ -8,6 +8,7 @@ numpy = "*"
 opencv-python = "*"
 openexr = "*"
 multiprocess = "*"
+cupy-cuda12x = "*"
 
 [dev-packages]
 

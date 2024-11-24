@@ -1,14 +1,16 @@
 import numpy as np
+from typing import Union
+import cupy as cp
 from multiprocessing import Pool
 
 class Filter:
 
-    def setSrc(self, src: np.ndarray):
-        self.src = src
-        height, width, _ = src.shape
+    def setSrc(self, src: Union[np.ndarray, cp.ndarray]):
+        self.src = cp.asarray(src)
+        height, width, _ = self.src.shape
         self.height = height
         self.width = width
-        self.dst = np.zeros(shape=(height, width, 4))
+        self.dst = cp.zeros(shape=(height, width, 4))
 
     
     def getDst(self):
@@ -52,7 +54,7 @@ class Filter:
             y += 1
 
 
-    def process(self, pos: list[int]) -> np.ndarray:
+    def process(self, pos: list[int]) -> cp.ndarray:
         """given the position of a pixel, return the new pixel value
         Returns:
             _type_: RGBa Value of the pixel
