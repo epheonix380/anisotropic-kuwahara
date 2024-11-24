@@ -44,6 +44,27 @@ def downsample_image(image:np.ndarray, factor:int) -> np.ndarray:
     return cv2.resize(image, (image.shape[1]//factor, image.shape[0]//factor), interpolation=cv2.INTER_AREA)
 
 
+def plot_orientation_arrows(orientations, image, title_text="title"):
+        """Given orientation angle and the original image draw the orientation arrow on top of the image
+            must call plt.plot() to see the plots.Expects both orientation and image to have the same with and height
+        Args:
+            orientations np.ndarray of the arrow angles
+            image np.ndarray: image array
+            title_text (str, optional): title of plot
+        """
+        plt.figure()
+        plt.imshow(image, cmap='gray')
+        plt.title(title_text)
+
+        for i in range(orientations.shape[0]):
+            for j in range(orientations.shape[1]):
+                angle = orientations[i, j]
+                x = j
+                y = i
+                dx = np.cos(angle)
+                dy = np.sin(angle)
+                plt.arrow(x, y, dx, dy, head_width=0.1, head_length=0.2, fc='red', ec='red')
+
 def plot_image(data:np.ndarray, show_values=False, cv_color_transform=None, channel_to_show=0, title=None, cmap=None) -> None:
     """Given nd array image, plot the image in a new window. Must call plt.show() to display the image.
     Note that the image needs to be in RGB format to show properly. 

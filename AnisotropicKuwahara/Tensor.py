@@ -32,6 +32,38 @@ class StructuredTensor:
     def getDst(self):
         return self.dst
     
+    def get_lambdas(self, E:np.ndarray, G:np.ndarray, F:np.ndarray)-> np.ndarray:
+        """Compute the eigenvalues of the structure tensor at each pixel.
+        Args:
+            E (np.ndarray): np array of dxdx values
+            G (np.ndarray): np array of dydy values
+            F (np.ndarray): np array of dxdy values
+        Returns:
+            lambda1, lambda2: two np arrays of the lambda values
+        """
+        e_g = E + G
+        quadratic = np.sqrt((E - G)**2 + 4*F**2)
+
+        lambda1 = (e_g + quadratic) / 2
+        lambda2 = (e_g - quadratic) / 2
+        
+        return lambda1, lambda2
+    
+    def get_orientations(self, E:np.ndarray, F:np.ndarray, lambda1:np.ndarray)-> np.ndarray:
+        """Compute the orientation of the eigenvector corresponding to the largest eigenvalue.
+        Args:
+            E (np.ndarray): np array of dxdx values
+            F (np.ndarray): np array of dxdy values
+            lambda1 (np.ndarray): np array of the largest eigenvalues
+        Returns:
+            np.ndarray: np array of the orientations
+        """
+        x_dir = lambda1 - E
+        y_dir = -F
+        angle = np.arctan2(y_dir, x_dir)
+        return angle
+        
+    
     def getGradientsRGB(self, cv_dtype=-1, method:GradientMethod=GradientMethod.JAHNE)->np.ndarray:
         """Given image, return dxdx, dydy and dxdy gradients. Image must be in RGBA format
         Args:

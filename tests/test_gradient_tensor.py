@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 
-from AnisotropicKuwahara.utils.ImageUtil import plot_image, downsample_image, read_image, gaussian
+from AnisotropicKuwahara.utils.ImageUtil import *
 from AnisotropicKuwahara.Tensor import StructuredTensor
 from AnisotropicKuwahara.utils.TimeReport import TimeReport
 
@@ -146,3 +146,112 @@ def test_compare_grayscale_2D_conv_with_grayscale_1d_conv(time_report):
     assert np.allclose(dydy_conv_grey_2d, dydy_conv_grey_1d, atol=1e-2)
     assert np.allclose(dxdy_conv_grey_2d, dxdy_conv_grey_1d, atol=1e-2)
  
+def test_lambda_on_structure_tensor_small():
+    struct_tensor = np.array([
+        [[1,2,3],[4,5,6]],
+        [[11,20,25],[5,4,2]],
+    ], dtype=np.float64)
+
+    expected_l1 = np.array([
+        [4.541381, 10.520797],
+        [40.901772, 6.561553],
+    ], dtype=np.float64)
+
+    expected_l2 = np.array([
+        [-1.541381, -1.520797],
+        [-9.901772,  2.438447]
+    ], dtype=np.float64)
+
+    tensor = StructuredTensor(np.zeros((2,2,4)))
+    
+    E, G, F = [struct_tensor[:,:,i] for i in range(3)]
+    lambda1, lambda2 = tensor.get_lambdas(E,G,F)
+        # same thing but using trace and det calculation
+    trace = E + G
+    determinant = E * G - F * F
+    
+    # Compute the eigenvalues of the structure tensor
+    sqrt_term = np.sqrt(StructuredTensor.square(trace) / 4 - determinant)
+    lambda_trace_1 = trace / 2 + sqrt_term
+    lambda_trace_2 = trace / 2 - sqrt_term
+    
+
+    assert np.allclose(lambda1, expected_l1, atol=1e-3)
+    assert np.allclose(lambda2, expected_l2, atol=1e-3)
+
+    assert np.allclose(lambda_trace_1, expected_l1, atol=1e-3)
+    assert np.allclose(lambda_trace_2, expected_l2, atol=1e-3)
+
+def test_lambda_on_structure_tensor():
+    image = read_image("examples/shrek.jpg")
+    image = gaussian(image, 11, 2.0)
+
+    st = StructuredTensor(image)
+    struct_tensor = st.getGradientGray()
+    
+    E, G, F = [struct_tensor[:,:,i] for i in range(3)]
+    lambda_1, lambda_2 = st.get_lambdas(E,G,F)
+
+    # same thing but using trace and det calculation
+    trace = E + G
+    determinant = E * G - F * F
+    
+    # Compute the eigenvalues of the structure tensor
+    sqrt_term = np.sqrt(StructuredTensor.square(trace) / 4 - determinant)
+    lambda1_trace = trace / 2 + sqrt_term
+    lambda2_trace = trace / 2 - sqrt_term
+    
+
+    assert np.allclose(lambda1_trace, lambda_1, atol=1e-3)
+    assert np.allclose(lambda2_trace, lambda_2, atol=1e-3)
+    assert np.min(lambda_1) >= 0
+
+
+def test_orientation_on_lambdas():
+    struct_tensor = np.array([
+        [[1,2,3],[4,5,6]],
+        [[11,20,25],[5,4,2]],
+    ], dtype=np.float64)
+
+    lambda1 = np.array([
+        [4.541381, 10.520797],
+        [40.901772, 6.561553],
+    ], dtype=np.float64)
+
+    expected_orientation = np.array([
+        [-0.702824, -0.743828],
+        [-0.696352, -0.907887],
+    ], dtype=np.float64)
+
+    tensor = StructuredTensor(np.zeros((2,2,4)))
+    E, G, F = [struct_tensor[:,:,i] for i in range(3)]
+
+    orientation = tensor.get_orientations(E, F, lambda1)
+
+    assert np.allclose(orientation, expected_orientation, atol=1e-3)
+
+
+def test_gaussian_on_gradient_before_orientation():
+    img = read_image("examples/shrek.jpg")
+    # img = cv2.convertScaleAbs(img)
+    img = crop_image(img, 200,200,475, 75) # crop the image to a smaller size
+    img = downsample_image(img, img.shape[0]//30)
+
+    plot_image(img, title="downsampled Image")
+
+    st = StructuredTensor(img)
+    structure_tensor = st.getGradientGray()
+
+    E, G, F = [structure_tensor[:,:,i] for i in range(3)]
+    lambda1, lambda2 = st.get_lambdas(E,G,F)
+    orientations = st.get_orientations(E,F,lambda1)
+    plot_orientation_arrows(orientations,img, "Orientation before smoothing")
+
+    gauss_struct_tensor = gaussian(structure_tensor, 3, 1)
+    E, G, F = [gauss_struct_tensor[:,:,i] for i in range(3)]
+    lambda1, lambda2 = st.get_lambdas(E,G,F)
+    orientations = st.get_orientations(E,F,lambda1)
+    plot_orientation_arrows(orientations,img, "Orientation after smoothing")
+
+    plt.show()
+
