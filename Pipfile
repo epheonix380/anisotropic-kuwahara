@@ -12,6 +12,8 @@ matplotlib = "*"
 pytest = "*"
 cupy-cuda12x = "*"
 setuptools = "*"
+numba = "*"
+cuda-python = "*"
 
 [dev-packages]
 
