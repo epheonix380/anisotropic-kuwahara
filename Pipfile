@@ -4,12 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-numpy = "*"
-opencv-python = "*"
 openexr = "*"
 multiprocess = "*"
 pillow = "*"
 async-tkinter-loop = "*"
+opencv-python = "*"
+numpy = "*"
+matplotlib = "*"
+pytest = "*"
 
 [dev-packages]
 
