@@ -15,3 +15,23 @@ Invoke the virtualenv by using
 
 Then run
 `python -m AnisotropicKuwahara <<input image>> <<output image>>`
+
+
+
+## Running pytests
+If you're on vs code you can run tests from the testing extension (much nicer experience).If you have no other choice then run it from the terminal. To run pytests from the terminal, you have to specify the python path. this will be the path to the anisotropic-kuwahara. 
+
+If you are on a git bash terminal:
+ ```bash
+export PYTHONPATH=$(pwd)
+
+## alternatively:
+# export PYTHONPATH=$PWD
+ ```
+
+Example commands to run tests:
+```bash
+pytest
+pytest path/to/test/folder.py
+pytest path/to/test/folder.py::test_name
+```
