@@ -11,7 +11,7 @@ class FileBar(tk.Frame):
         self.load_queue = []
         self.list = tk.Listbox(self, width=30)
         self.fileList = []
-        self.list.bind("<<ListboxSelect>>", async_handler(self.select_from_list))
+        self.list.bind("<<ListboxSelect>>", self.select_from_list)
         self.list.grid(row=2, column=0, rowspan=8, columnspan=2)
         self.search = tk.Entry(self, textvariable=self.text,validate="all", validatecommand=self.search_command)
         self.search.grid(row=0, column=0, columnspan=2)
@@ -20,8 +20,8 @@ class FileBar(tk.Frame):
         self.add_folder = tk.Button(self, text="Add Folder", command=self.select_folder)
         self.add_folder.grid(row=1, column=1, padx=5)
 
-    async def select_from_list(self, item):
-        await self.parent.preview.select_image(self.fileList[self.list.curselection()[0]].path)
+    def select_from_list(self, item):
+        self.parent.preview.select_image(self.fileList[self.list.curselection()[0]].path)
 
     def search_command(self):
         print(self.text.get())

@@ -2,6 +2,7 @@ import numpy as np
 from multiprocessing import Pool
 import math
 import cv2
+import asyncio
 from AnisotropicKuwahara.Tensor import StructuredTensor
 from AnisotropicKuwahara.utils.ImageUtil import *
 from AnisotropicKuwahara.utils.TimeReport import TimeReport
@@ -154,6 +155,78 @@ class Kuwahara():
         output_image_b = weighted_sum_of_quadrants_b / sum_of_quadrant_weights
 
         output_image = cv2.merge((output_image_r, output_image_g, output_image_b))
+
+        output_image = output_image / 255.  #rescale to 0-1 so it shows up :)
+        return output_image
+    
+    async def async_process(self, input_image: np.ndarray):
+        """Given an input image, apply the Kuwahara filter to it.
+        All params for the filter are already set in the constructor
+
+        Args:
+            input_image (np.ndarray): input image to apply the filter to. Should be an RBG image
+        """
+
+        grayscale = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+        image_r = input_image[:,:,0] #TODO: do this but without the split
+        image_g = input_image[:,:,1]
+        image_b = input_image[:,:,2]
+
+        grayscale = grayscale.astype(np.float64)
+
+        grayscale_squared = grayscale * grayscale
+
+        shape = (self.num_quadrants, grayscale.shape[0], grayscale.shape[1])
+
+        await asyncio.sleep(1/120)
+
+        out_r = np.zeros(shape)
+        out_g = np.zeros(shape)
+        out_b = np.zeros(shape)
+
+        m = np.zeros(shape)
+        m_squared = np.zeros(shape)
+        weighted_sum_of_squared_image = np.zeros(shape)
+        variance = np.zeros(shape)
+        sd = np.zeros(shape)
+        a = np.zeros(shape)
+
+        await asyncio.sleep(1/120)
+
+        weighted_sum_of_quadrants_r = np.zeros((grayscale.shape[0], grayscale.shape[1]))
+        weighted_sum_of_quadrants_g = np.zeros((grayscale.shape[0], grayscale.shape[1]))
+        weighted_sum_of_quadrants_b = np.zeros((grayscale.shape[0], grayscale.shape[1]))
+        sum_of_quadrant_weights = np.zeros((grayscale.shape[0], grayscale.shape[1]))
+
+
+        for i in range(self.num_quadrants):
+            await asyncio.sleep(1/120)
+            out_r[i] = cv2.filter2D(image_r, -1, self.kernel[i], borderType=cv2.BORDER_DEFAULT) / self.sector_sum
+            out_g[i] = cv2.filter2D(image_g, -1, self.kernel[i], borderType=cv2.BORDER_DEFAULT) / self.sector_sum
+            out_b[i] = cv2.filter2D(image_b, -1, self.kernel[i], borderType=cv2.BORDER_DEFAULT) / self.sector_sum
+            m[i] = cv2.filter2D(grayscale, -1, self.kernel[i], borderType=cv2.BORDER_DEFAULT) / self.sector_sum
+
+            m_squared[i] = cv2.filter2D(grayscale_squared, -1, self.kernel[i], borderType=cv2.BORDER_DEFAULT) / self.sector_sum
+            weighted_sum_of_squared_image[i] = m[i] * m[i]
+            variance[i] = m_squared[i] - weighted_sum_of_squared_image[i]
+            variance[i] = np.maximum(variance[i], 0) # avoid catastrophic cancellation
+            sd[i] = np.sqrt(variance[i])
+            a[i] = 1/(1 + np.power(np.abs(sd[i]), 8))
+
+            weighted_sum_of_quadrants_r += a[i] * out_r[i]
+            weighted_sum_of_quadrants_g += a[i] * out_g[i]
+            weighted_sum_of_quadrants_b += a[i] * out_b[i]
+
+            sum_of_quadrant_weights += a[i]
+
+        await asyncio.sleep(1/120)
+
+        output_image_r = weighted_sum_of_quadrants_r / sum_of_quadrant_weights
+        output_image_g = weighted_sum_of_quadrants_g / sum_of_quadrant_weights
+        output_image_b = weighted_sum_of_quadrants_b / sum_of_quadrant_weights
+        output_image_a = np.ones(output_image_b.shape)*255
+
+        output_image = cv2.merge((output_image_r, output_image_g, output_image_b, output_image_a))
 
         output_image = output_image / 255.  #rescale to 0-1 so it shows up :)
         return output_image

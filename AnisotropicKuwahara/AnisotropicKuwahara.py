@@ -1,5 +1,4 @@
 import numpy as np
-from multiprocessing import Pool
 from .Filter import Filter
 from AnisotropicKuwahara.Tensor import StructuredTensor
 from AnisotropicKuwahara.utils.ImageUtil import gaussian

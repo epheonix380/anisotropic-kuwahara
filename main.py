@@ -1,9 +1,10 @@
 from GUI.index import Index
 import tkinter as tk
+import asyncio
 
-from async_tkinter_loop import async_handler, async_mainloop
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = Index(root)
-    async_mainloop(root=root)
+    loop = asyncio.get_event_loop()
+    app = Index(loop)
+    loop.run_forever()
+    loop.close()
