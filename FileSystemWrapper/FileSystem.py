@@ -135,6 +135,25 @@ class FileSystemWrapper:
         for subdir in directory.subdirectories:
             self.print_tree(subdir, level + 1)
 
+    def find_all_with_ext(self, ext, directory=None) -> list[File]:
+        """
+        Find a file or directory by name.
+        """
+        if directory is None:
+            directory = self.tree.root
+        arr = []
+        # Check in the current directory
+        for file in directory.files:
+            if file.name.split(".")[-1] == ext:
+                arr.append(file)
+        # Recur into subdirectories
+        for subdir in directory.subdirectories:
+            result = self.find_all_with_ext(ext, subdir)
+            if result:
+                arr = arr + result
+
+        return arr
+
     def find(self, name, directory=None):
         """
         Find a file or directory by name.

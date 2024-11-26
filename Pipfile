@@ -8,6 +8,7 @@ numpy = "*"
 opencv-python = "*"
 openexr = "*"
 multiprocess = "*"
+pillow = "*"
 
 [dev-packages]
 
