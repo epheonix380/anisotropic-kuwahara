@@ -9,6 +9,7 @@ opencv-python = "*"
 openexr = "*"
 multiprocess = "*"
 pillow = "*"
+async-tkinter-loop = "*"
 
 [dev-packages]
 

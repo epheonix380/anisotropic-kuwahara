@@ -9,8 +9,8 @@ class Index(tk.Frame):
         tk.Frame.__init__(self, parent)
         parent.geometry("800x500")
         self.preview = Preview(self)
-        self.preview.grid(column=2, row=0, columnspan=12, rowspan=10)
+        self.preview.grid(column=2, row=0, columnspan=4, rowspan=6)
         self.fileBar = FileBar(self)
-        self.fileBar.grid(column=0, row=0, rowspan=10, columnspan=4)
+        self.fileBar.grid(column=0, row=0, rowspan=10, columnspan=2)
         self.grid()
         

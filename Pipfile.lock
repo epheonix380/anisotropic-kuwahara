@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2ecbb9abed79b3e880dcec80745590aa3b35385016d9705795b359724460cde7"
+            "sha256": "271e3cfe309210d621c41ac10675be95195882cf1fa5ac25c22c46ce11c1963d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,15 @@
         ]
     },
     "default": {
+        "async-tkinter-loop": {
+            "hashes": [
+                "sha256:4c69f46ffdbac48dc44c296c3a7b00c4cc4f852c3d43aa2fa329991d1fadea02",
+                "sha256:509c418139847bcb2e47a5a6b6d24a2e2dca290bc468dad6b6b8029e8a865bfd"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8' and python_version < '4.0'",
+            "version": "==0.9.3"
+        },
         "dill": {
             "hashes": [
                 "sha256:468dff3b89520b474c0397703366b7b95eebe6303f108adf9b19da1f702be87a",
@@ -246,6 +255,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==11.0.0"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d",
+                "sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==4.12.2"
         }
     },
     "develop": {}
