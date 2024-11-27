@@ -1,10 +1,7 @@
-from GUI.index import Index
 import tkinter as tk
-import asyncio
+from GUI.index import Index
 
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    app = Index(loop)
-    loop.run_forever()
-    loop.close()
+root = tk.Tk()
+root.geometry("800x600")
+app = Index(root)
+root.mainloop()

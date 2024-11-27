@@ -21,6 +21,7 @@ class FileBar(tk.Frame):
         self.add_folder.grid(row=1, column=1, padx=5)
 
     def select_from_list(self, item):
+        #print(item)
         self.parent.preview.select_image(self.fileList[self.list.curselection()[0]].path)
 
     def search_command(self):

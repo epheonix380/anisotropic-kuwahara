@@ -2,6 +2,7 @@
 *.exr
 **/__pycache__/*
 build/**
+dist/**
 output/**
 .vscode/**
 **/output/**

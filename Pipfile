@@ -5,15 +5,17 @@ name = "pypi"
 
 [packages]
 openexr = "*"
-multiprocess = "*"
 pillow = "*"
-async-tkinter-loop = "*"
 opencv-python = "*"
 numpy = "*"
-matplotlib = "*"
-pytest = "*"
+pyinstaller = "*"
 
 [dev-packages]
+pytest = "*"
+cx-freeze = "*"
+
+[scripts]
+build="python setup.py build"
 
 [requires]
 python_version = "3.11"
