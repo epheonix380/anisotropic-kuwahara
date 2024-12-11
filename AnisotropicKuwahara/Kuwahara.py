@@ -153,8 +153,9 @@ class Kuwahara():
         output_image_r = weighted_sum_of_quadrants_r / sum_of_quadrant_weights
         output_image_g = weighted_sum_of_quadrants_g / sum_of_quadrant_weights
         output_image_b = weighted_sum_of_quadrants_b / sum_of_quadrant_weights
+        output_image_a = np.ones(output_image_b.shape)*255
 
-        output_image = cv2.merge((output_image_r, output_image_g, output_image_b))
+        output_image = cv2.merge((output_image_r, output_image_g, output_image_b, output_image_a))
 
         output_image = output_image / 255.  #rescale to 0-1 so it shows up :)
         return output_image

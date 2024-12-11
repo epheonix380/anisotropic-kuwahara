@@ -2,6 +2,7 @@ import tkinter as tk
 import numpy as np
 from AnisotropicKuwahara.EXR import read 
 from AnisotropicKuwahara.Kuwahara import Kuwahara
+from ShadyKuwahara.render import renderFromNDarray
 from PIL import ImageTk, Image
 import math
 import asyncio
@@ -24,10 +25,9 @@ class Preview(tk.Frame):
         self.label.pack(fill="both", anchor=tk.NE)
 
     async def _async_image_processor(self):
-        kuwahara = Kuwahara()
-        img = await kuwahara.async_process(self.pre_image)*255
+        img = renderFromNDarray(self.pre_image)
         await asyncio.sleep(1/120)
-        image = Image.fromarray(img.astype(np.uint8)).resize((self.width, self.height))
+        image = Image.fromarray(img.astype(np.uint8)).resize((self.width, self.height)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         self.image = ImageTk.PhotoImage(image=image)
         await asyncio.sleep(1/120)
         await self._async_image_updater()
@@ -38,9 +38,8 @@ class Preview(tk.Frame):
         self.update()
 
     async def _async_image_loader(self, filepath):
-        img:np.ndarray = read(input_path=filepath)*255
+        img:np.ndarray = read(input_path=filepath)
         height, width, _ = img.shape
-        print(img.shape)
         factor = 300/height
         newWidth = int(math.floor(width*factor))
         self.width = newWidth

@@ -12,6 +12,8 @@ opencv-python = "*"
 numpy = "*"
 matplotlib = "*"
 pytest = "*"
+pygame = "*"
+moderngl = "*"
 
 [dev-packages]
 
