@@ -34,7 +34,7 @@ class FileBar(tk.Frame):
             os.makedirs("output")
         for file in self.fileList:
             img:np.ndarray = read(input_path=file.path)
-            image = np.flip(renderFromNDarray(image=img, radius=self.parent.preview.radius)/255, 0)
+            image = renderFromNDarray(image=img, radius=self.parent.preview.radius)/255
             if (file.relative_path != ""):
                 # Check whether the specified path exists or not
                 output_path = f"output/{file.relative_path}"

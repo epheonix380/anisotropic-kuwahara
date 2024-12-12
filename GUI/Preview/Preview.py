@@ -47,7 +47,7 @@ class Preview(tk.Frame):
     async def _async_image_processor(self):
         img = renderFromNDarray(self.pre_image, self.radius)
         await asyncio.sleep(1/120)
-        image = Image.fromarray(img.astype(np.uint8)).resize((self.width, self.height)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        image = Image.fromarray(img.astype(np.uint8)).resize((self.width, self.height))
         self.image = ImageTk.PhotoImage(image=image)
         await asyncio.sleep(1/120)
         await self._async_image_updater()
