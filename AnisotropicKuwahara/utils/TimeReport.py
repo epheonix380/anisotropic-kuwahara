@@ -14,10 +14,13 @@ class TimeReport:
     def __init__(self, test_name):
         self.test_name = test_name
 
+    def get_runtime(self):
+        return self.runtime
+
     def __enter__(self):
         self.start_time = time.time()
         return self
-
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end_time = time.time()
         self.runtime = self.end_time - self.start_time

@@ -1,12 +1,21 @@
-#include "config.glsl"
-// #iChannel1 "TODO: KO TEXTURE/BUFFER"
+// src image
+
+uniform sampler2D display1;
+uniform sampler2D display2;
+uniform vec2 res;
+uniform int RAD;
+#define PI 3.14159265358979323846
+
+struct Window {
+    int x1, y1, x2, y2;
+};
 
 const int N = 8;
 const float q = 2.0;
 
-void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-    vec2 src_size = iResolution.xy;
-    vec2 uv = fragCoord.xy / src_size;
+void main() {
+    vec2 src_size = res.xy;
+    vec2 uv = gl_FragCoord.xy / src_size;
 
     vec4 m[8];
     vec3 s[8];
@@ -22,10 +31,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         for (int i = -RAD; i <= RAD; ++i) {
             vec2 v = 0.5 * vec2(float(i), float(j)) / float(RAD);
             if (dot(v, v) <= 0.25) {
-                vec3 c = texture(iChannel0, uv + vec2(float(i), float(j)) / src_size).rgb;
+                vec3 c = texture(display1, uv + vec2(float(i), float(j)) / src_size).rgb;
                 for (int k = 0; k < N; ++k) {
 
-                    float w = texture(iChannel1, vec2(0.5, 0.5) + v).x;
+                    float w = texture(display2, vec2(0.5, 0.5) + v).x;
                     m[k] += vec4(c * w, w);
                     s[k] += c * c * w;
                     v *= X;
@@ -43,5 +52,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         o += vec4(m[k].rgb * w, w);
     }
 
-    fragColor = vec4(o.rgb / o.w, 1.0);
+    frag_col = vec4(o.rgb / o.w, 1.0);
 }

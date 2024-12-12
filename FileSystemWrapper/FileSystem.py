@@ -31,9 +31,10 @@ class ByteSize:
 
 
 class File:
-    def __init__(self, name, path, size):
+    def __init__(self, name, path, size, relative_path=""):
         self.name = name
         self.path = path
+        self.relative_path = relative_path
         self.size = ByteSize(size)
         self.file_type = os.path.splitext(name)[1] or "Unknown"
         self.created_time = datetime.fromtimestamp(os.path.getctime(path))
@@ -93,6 +94,7 @@ class FileSystemWrapper:
         self.tree = None
 
     def build_tree(self, root_path):
+        self.root = root_path
         if not os.path.isdir(root_path):
             raise ValueError(f"Path is not a directory: {root_path}")
 
@@ -101,12 +103,12 @@ class FileSystemWrapper:
 
     def _build_directory(self, path):
         directory = Directory(name=os.path.basename(path), path=path)
-
         try:
             for entry in os.scandir(path):
                 if entry.is_file():
                     file_info = File(
                         name=entry.name,
+                        relative_path= path.removeprefix(self.root)[1::],
                         path=entry.path,
                         size=entry.stat().st_size
                     )
@@ -134,6 +136,25 @@ class FileSystemWrapper:
 
         for subdir in directory.subdirectories:
             self.print_tree(subdir, level + 1)
+
+    def find_all_with_ext(self, ext, directory=None) -> list[File]:
+        """
+        Find a file or directory by name.
+        """
+        if directory is None:
+            directory = self.tree.root
+        arr = []
+        # Check in the current directory
+        for file in directory.files:
+            if file.name.split(".")[-1] == ext:
+                arr.append(file)
+        # Recur into subdirectories
+        for subdir in directory.subdirectories:
+            result = self.find_all_with_ext(ext, subdir)
+            if result:
+                arr = arr + result
+
+        return arr
 
     def find(self, name, directory=None):
         """

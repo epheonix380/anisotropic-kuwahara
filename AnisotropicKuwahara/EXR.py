@@ -32,13 +32,15 @@ def read(input_path: str) -> np.ndarray:
     Reads a given pathlike string as an exr image and returns it as a ndarray
     """
     with OpenEXR.File(input_path) as infile:
-        channels = infile.channels()
-        return infile.channels()["RGBA"].pixels
+        pixels = infile.channels()["RGBA"].pixels
+        print(pixels.shape)
+        return pixels
     
 def write(output_path:str, src:np.ndarray) -> None:
     """
     Writes given ndarray as an exr, defaults to scanlineimage type.
     """
+    path = "pythonprog"
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
         "type" : OpenEXR.scanlineimage }
     channel = OpenEXR.Channel(src.astype('float32'))
