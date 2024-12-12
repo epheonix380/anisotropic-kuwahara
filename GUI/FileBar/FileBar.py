@@ -1,4 +1,10 @@
 import tkinter as tk
+import numpy as np
+import os
+from ShadyKuwahara.render import renderFromNDarray
+from PIL import ImageTk, Image
+import math
+from AnisotropicKuwahara.EXR import read , write
 from tkinter.filedialog import askopenfilenames, askdirectory
 from FileSystemWrapper.FileSystem import FileSystemWrapper, File
 from async_tkinter_loop import async_handler
@@ -19,6 +25,26 @@ class FileBar(tk.Frame):
         self.add_file.grid(row=1, column=0 , padx=5)
         self.add_folder = tk.Button(self, text="Add Folder", command=self.select_folder)
         self.add_folder.grid(row=1, column=1, padx=5)
+        self.render_all = tk.Button(self, text="Render all", command=self.render)
+        self.render_all.grid(row=10, column=0, columnspan=2)
+
+    def render(self):
+        isExist = os.path.exists("output")
+        if not isExist:
+            os.makedirs("output")
+        for file in self.fileList:
+            img:np.ndarray = read(input_path=file.path)
+            image = np.flip(renderFromNDarray(image=img, radius=self.parent.preview.radius)/255, 0)
+            if (file.relative_path != ""):
+                # Check whether the specified path exists or not
+                output_path = f"output/{file.relative_path}"
+                isExist = os.path.exists(output_path)
+                if not isExist:
+                    os.makedirs(output_path)
+                write(f"output/{file.relative_path}/{file.name}", image)
+            else:
+                write(f"output/{file.name}", image)
+                
 
     def select_from_list(self, item):
         self.parent.preview.select_image(self.fileList[self.list.curselection()[0]].path)

@@ -40,6 +40,7 @@ def write(output_path:str, src:np.ndarray) -> None:
     """
     Writes given ndarray as an exr, defaults to scanlineimage type.
     """
+    path = "pythonprog"
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
         "type" : OpenEXR.scanlineimage }
     channel = OpenEXR.Channel(src.astype('float32'))

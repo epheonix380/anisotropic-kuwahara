@@ -23,9 +23,29 @@ class Preview(tk.Frame):
                  underline=0,           
                  wraplength=250)
         self.label.pack(fill="both", anchor=tk.NE)
+        vcmd = (self.register(self.callback))
+        self.radius = 5
+        self.radius_text = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P')) 
+        self.radius_text.insert(0, "5")
+        self.radius_text.pack(anchor=tk.S)
+
+    def callback(self, P):
+        if str.isdigit(P) or P == "":
+            try:
+                rad = int(P)
+            except:
+                rad = 5
+            if rad > 100:
+                print("100 is cap")
+            else:
+                self.radius = rad
+                asyncio.ensure_future(self._async_image_processor(), loop=self.parent.loop)
+            return True
+        else:
+            return False
 
     async def _async_image_processor(self):
-        img = renderFromNDarray(self.pre_image)
+        img = renderFromNDarray(self.pre_image, self.radius)
         await asyncio.sleep(1/120)
         image = Image.fromarray(img.astype(np.uint8)).resize((self.width, self.height)).transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         self.image = ImageTk.PhotoImage(image=image)
