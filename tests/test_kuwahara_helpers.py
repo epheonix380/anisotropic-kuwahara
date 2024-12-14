@@ -82,21 +82,22 @@ def test_kuwahara_init(kernel):
     print(kernel)
     k = Kuwahara(kernel_radius=kernel)
 
-    # with TimeReport(f"doing kuwahara with kernel size {kernel}"):
-    #     result_r = k.process_grayscale(image_r)
-    #     result_g = k.process_grayscale(image_g)
-    #     result_b = k.process_grayscale(image_b)
-    #     result = cv2.merge([result_r, result_g, result_b])
+    with TimeReport(f"doing kuwahara with kernel size {kernel}"):
+        result_r = k.process_grayscale(image_r)
+        result_g = k.process_grayscale(image_g)
+        result_b = k.process_grayscale(image_b)
+        result_rgb = cv2.merge([result_r, result_g, result_b])
     with TimeReport(f"only grayscale, with kernel size {kernel}"):
-        result_grayscale = k.process(image, dtype=np.float32)
+        result_from_grayscale = k.process(image, dtype=np.float32)
     with TimeReport(f"import, with kernel size {kernel}"):
         result_grayscale = pykuwahara(image, method="gaussian", radius=kernel)
+    with TimeReport(f"hsv, with kernel size {kernel}"):
+        result_hsv = k.process_hsv(image)
 
-
-    # with TimeReport(f"hsv, with kernel size {kernel}"):
-    #     result_hsv = k.process_hsv(image)
-
-    plot_and_save([image, result_grayscale], titles=["original","grayscale"], save_path=f"tests/output/color_grayscale_diff/kuwahara_kernel_{kernel}.png")
+    plot_and_save(
+        [result_rgb, result_from_grayscale,result_hsv,result_grayscale], 
+        titles=["original","grayscale","hsv", "external implementation"], 
+        save_path=f"tests/output/color_grayscale_diff/kuwahara_kernel_{kernel}.png")
 
 
 
