@@ -1,11 +1,11 @@
 import pytest
 import matplotlib.pyplot as plt
 from pykuwahara import kuwahara as pykuwahara
-
+import time
 import cv2
 import numpy as np
 
-from AnisotropicKuwahara.utils.ImageUtil import plot_image, downsample_image, read_image, gaussian, crop_image
+from AnisotropicKuwahara.utils.ImageUtil import *
 from AnisotropicKuwahara.Tensor import StructuredTensor
 from AnisotropicKuwahara.Kuwahara import Kuwahara
 from AnisotropicKuwahara.utils.TimeReport import TimeReport
@@ -33,25 +33,70 @@ def addPadding(image, pad):
     return np.pad(image, ((pad,pad), (pad,pad)), mode='constant', constant_values=0)
 
 
-def test_kuwahara_init():
+def test_kuwahara_kernel_size():
+    image = read_image("examples/shrek.jpg")
+    # image = downsample_image(image, image.shape[0]//50)
+
+    # kernels = [5,10,20,40,80,160]
+    repeats = 3
+    kernels = [5,10,20,40,80,160]
+    times = []
+    time_report = TimeReport("")
+    for kernel in kernels:
+        print(f"kernel size: {kernel}")
+        start = time.time()
+        k = Kuwahara(kernel_radius=kernel)
+        for x in range(repeats):
+                result = k.process(image)
+
+        difference = time.time() - start
+        
+        times.append(difference/repeats)
+
+    plt.plot(kernels, times)
+    plt.xlabel("Kernel size")
+    plt.ylabel("Time (s)")
+    plt.title("Kuwahara runtime vs kernel size")
+    # plt.show()
+
+
+
+def test_multiple_convolutions():
+    image = read_image("examples/shrek.jpg")
+    # image = downsample_image(image, image.shape[0]//50)
+
+    repeats = 3
+
+    kernel_size = 4
+
+
+
+@pytest.mark.parametrize("kernel", [5,10,20,40,80,100])
+def test_kuwahara_init(kernel):
     image = read_image("examples/shrek.jpg")
     # image = downsample_image(image, image.shape[0]//50)
     image_r = image[:,:,0]
     image_g = image[:,:,1]
     image_b = image[:,:,2]
 
-    with TimeReport("kuwahara init"):
-        k = Kuwahara(kernel_radius=11)
+    print(kernel)
+    k = Kuwahara(kernel_radius=kernel)
 
-    with TimeReport("doing kuwahara"):
-        result_r = k.process_grayscale(image_r)
-        result_g = k.process_grayscale(image_g)
-        result_b = k.process_grayscale(image_b)
-        result = cv2.merge([result_r, result_g, result_b])
+    # with TimeReport(f"doing kuwahara with kernel size {kernel}"):
+    #     result_r = k.process_grayscale(image_r)
+    #     result_g = k.process_grayscale(image_g)
+    #     result_b = k.process_grayscale(image_b)
+    #     result = cv2.merge([result_r, result_g, result_b])
+    with TimeReport(f"only grayscale, with kernel size {kernel}"):
+        result_grayscale = k.process(image, dtype=np.float32)
+    with TimeReport(f"import, with kernel size {kernel}"):
+        result_grayscale = pykuwahara(image, method="gaussian", radius=kernel)
 
-    with TimeReport("only grayscale"):
-        result_grayscale = k.process(image)
 
+    # with TimeReport(f"hsv, with kernel size {kernel}"):
+    #     result_hsv = k.process_hsv(image)
+
+    plot_and_save([image, result_grayscale], titles=["original","grayscale"], save_path=f"tests/output/color_grayscale_diff/kuwahara_kernel_{kernel}.png")
 
 
 
