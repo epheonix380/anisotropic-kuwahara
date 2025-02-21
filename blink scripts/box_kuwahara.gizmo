@@ -1,0 +1,39 @@
+#! C:/Program Files/Nuke15.1v4/nuke-15.1.4.dll -nx
+version 15.1 v4
+Gizmo {
+ label boxFilter
+ addUserKnob {20 User}
+ addUserKnob {41 size l "Blur Intensity" t "Intensity of blur before kuwahara. Increase this if the kuwahara output has artifacts." T Blur1.size}
+ addUserKnob {41 blender_Kuwahara_Radius l "Kernel Size" t "Kuwahara kernel size. Bigger number: bigger \"boxes\"." T BlinkScript2.blender_Kuwahara_Radius}
+ addUserKnob {26 Credit l "" +STARTLINE T "Box Kuwahara implementation for Nuke 15.1v4. Last updated on 21-01-2025"}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 140
+  ypos 27
+ }
+ Blur {
+  size 9.5
+  name Blur1
+  xpos 140
+  ypos 67
+ }
+ BlinkScript {
+  recompileCount 49
+  ProgramGroup 1
+  KernelDescription "3 \"blender_Kuwahara\" iterate pixelWise 1b6125658c3a7a9021c95103a58d05d56574ee0913735de90cfc25e52e1dca60 2 \"src\" Read Random \"dst\" Write Point 1 \"Radius\" Int 1 DwAAAA== 1 \"radius\" 1 1 Default 2 \"width\" Int 1 1 AAAAAA== \"height\" Int 1 1 AAAAAA=="
+  kernelSource "kernel blender_Kuwahara : ImageComputationKernel<ePixelWise>\n\{\n\n    Image<eRead, eAccessRandom, eEdgeClamped> src; // Input image\n    Image<eWrite> dst; // Output image\n    \n    param:\n        int radius; \n\n    local:\n        int width;\n        int height;\n\n    void define() \{\n        defineParam(radius, \"Radius\", 15); \n    \}\n    \n    void init() \{\n        width = src.bounds.x2;\n        height = src.bounds.y2;\n    \}\n    \n    inline float square(float x) \{\n          return x * x;\n    \}\n\n    void process(int2 pos) \{\n        int2 src_size = int2(width, height);\n        int2 uv = pos / src_size;\n        float n = float ((radius + 1) * (radius + 1));\n        float3 m\[4];\n        float3 s\[4];\n        for ( int k = 0; k < 4; ++k) \{\n            m\[k] = float3 (0.0);\n            s\[k] = float3 (0.0);\n        \}\n        int4 W\[4];\n        W\[0] = int4( -radius , -radius , 0 , 0 );\n        W\[1] = int4( 0, -radius , radius , 0 );\n        W\[2] = int4( 0 , 0, radius , radius );\n        W\[3] = int4( -radius , 0 , 0, radius );\n        for ( int k = 0; k < 4; ++k) \{\n            for ( int j = W\[k]\[1]; j <= W\[k]\[3]; ++j) \{\n                for ( int i = W\[k]\[0]; i <= W\[k]\[2]; ++i) \{\n                    float4 temp_src = src(pos.x+i,pos.y+j);\n                    float3 c = float3(temp_src\[0],temp_src\[1],temp_src\[2]);\n                    m\[k] += c;\n                    s\[k] += c * c;\n                \}\n            \}\n        \}\n        float min_sigma2 = 1e+2;\n        for ( int k = 0; k < 4; ++k) \{\n            m\[k] /= n;\n            s\[k] = fabs(s\[k] / n - m\[k] * m\[k]);\n            float sigma2 = s\[k]\[0] + s\[k]\[1] + s\[k]\[2];\n            if (sigma2 < min_sigma2) \{\n                min_sigma2 = sigma2;\n                dst() = float4 (m\[k], 1.0);\n            \}\n        \}\n    \}\n\n\};"
+  rebuild ""
+  blender_Kuwahara_Radius 4
+  rebuild_finalise ""
+  name BlinkScript2
+  xpos 140
+  ypos 158
+ }
+ Output {
+  name Output1
+  xpos 140
+  ypos 258
+ }
+end_group
