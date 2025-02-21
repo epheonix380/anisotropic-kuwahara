@@ -6,10 +6,14 @@ name = "pypi"
 [packages]
 openexr = "*"
 multiprocess = "*"
+pillow = "*"
+async-tkinter-loop = "*"
 opencv-python = "*"
 numpy = "*"
 matplotlib = "*"
 pytest = "*"
+pygame = "*"
+moderngl = "*"
 
 [dev-packages]
 
